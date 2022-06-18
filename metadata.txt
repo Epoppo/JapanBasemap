@@ -1,0 +1,31 @@
+[general]
+name=Japan Basemap
+qgisMinimumVersion=3.0
+description=対象範囲内に交差する国土基本図図郭の生成
+version=1.0.0
+author=Epoppo
+email=poppo.circle@gmail.com
+about=指定されたベクタに交差(intersect)する範囲内で、指定した地図情報レベル(50000, 5000, 2500, 1000, 500, 250)の国土基本図図郭を生成します
+repository=https://github.com/Epoppo/JapanBasemap/
+# tracker=https://
+hasProcessingProvider=yes
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=python, polygon, vector
+
+icon=icon.png
+# experimental flag
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
+# Since QGIS 3.8, a comma separated list of plugins to be installed
+# (or upgraded) can be specified.
+# Check the documentation for more information.
+# plugin_dependencies=
+
+# If the plugin can run on QGIS Server.
+server=False
