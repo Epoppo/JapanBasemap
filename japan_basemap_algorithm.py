@@ -435,7 +435,7 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return ''
+        return 'japanbasemap'
 
     def displayName(self):
         """プロセシングツールボックス上での名称"""
