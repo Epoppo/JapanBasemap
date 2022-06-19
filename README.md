@@ -39,7 +39,7 @@ Qgis3以降が搭載するPython 3.6以降のバージョンなら大丈夫で�
 ## インストール方法
 -- 分かってる人向け --<br>
 通常通りインストールを行っている場合、QGISがプラグインを読み込むディレクトリの<br>
-C:\Users\\(ユーザ名)\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\BasemapGen <br>
+C:\Users\\(ユーザ名)\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\japan_basemap <br>
 に対して当リポジトリの内容を突っ込めば動きます。
 
 <br>

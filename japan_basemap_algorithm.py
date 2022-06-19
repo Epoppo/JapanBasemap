@@ -370,7 +370,7 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         地図情報レベル2500の命名だけが例外で気持ち悪い。なんで1から始まるんだ
         Args:
             kei (int)  : 系
-            select (int): Qgis上で選択した項番(_BASIC_PROPERTYの選択番に依存)
+            select_level (int): 地図情報レベル
             figure_x (int): 図郭の左上座標(x)
             figure_y (int): 図郭の左上座標(y)
 
