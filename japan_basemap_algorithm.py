@@ -22,26 +22,37 @@
  ***************************************************************************/
 """
 
-__author__ = 'Epoppo'
-__date__ = '2022-06-18'
-__copyright__ = '(C) 2022 by Epoppo'
+__author__ = "Epoppo"
+__date__ = "2022-06-18"
+__copyright__ = "(C) 2022 by Epoppo"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 from typing import Any, Dict, Tuple, Union
 
 from qgis import processing
-from qgis.core import (QgsCoordinateReferenceSystem, QgsFeatureIterator,
-                       QgsFeatureSink, QgsField, QgsFields, QgsProcessing,
-                       QgsProcessingAlgorithm, QgsProcessingContext,
-                       QgsProcessingException, QgsProcessingFeedback,
-                       QgsProcessingParameterBoolean,
-                       QgsProcessingParameterCrs, QgsProcessingParameterEnum,
-                       QgsProcessingParameterFeatureSink,
-                       QgsProcessingParameterFeatureSource, QgsRectangle,
-                       QgsVectorLayer, QgsWkbTypes)
+from qgis.core import (
+    QgsCoordinateReferenceSystem,
+    QgsFeatureIterator,
+    QgsFeatureSink,
+    QgsField,
+    QgsFields,
+    QgsProcessing,
+    QgsProcessingAlgorithm,
+    QgsProcessingContext,
+    QgsProcessingException,
+    QgsProcessingFeedback,
+    QgsProcessingParameterBoolean,
+    QgsProcessingParameterCrs,
+    QgsProcessingParameterEnum,
+    QgsProcessingParameterFeatureSink,
+    QgsProcessingParameterFeatureSource,
+    QgsRectangle,
+    QgsVectorLayer,
+    QgsWkbTypes,
+)
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
 
 
@@ -58,7 +69,6 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
     EXTENT = "EXTENT"
     PREDICATE = "PREDICATE"
     INTERSECT = "INTERSECT"
-    CHECK_FLAG = "CHECK_FLAG"
     OUTPUT = "OUTPUT"
     OUTPUT_CRS = "OUTPUT_CRS"
 
@@ -158,28 +168,13 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
             config ([type], optional): [description]. Defaults to None.
         """
         # 入力時CRS(Japan Plane Rectangular のみ許可)
-        self.addParameter(
-            QgsProcessingParameterCrs(
-                self.INPUT, self.tr("生成時CRS\nJGD2011,JGD2000,Tokyo座標系の1~19系のみ生成を許可"), optional=False
-            )
-        )
+        self.addParameter(QgsProcessingParameterCrs(self.INPUT, self.tr("生成時CRS\nJGD2011,JGD2000,Tokyo座標系の1~19系のみ生成を許可"), optional=False))
 
         # 処理種別
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                self.KIND, self.tr("処理種別"), options=self.MESH_TYPE, defaultValue=0, optional=False
-            )
-        )
+        self.addParameter(QgsProcessingParameterEnum(self.KIND, self.tr("処理種別"), options=self.MESH_TYPE, defaultValue=0, optional=False))
 
         # 比較対象となるレイヤ
         self.addParameter(QgsProcessingParameterFeatureSource(self.INTERSECT, self.tr("比較対象の地物があるレイヤ"), optional=False))
-
-        # レイヤと交差する図郭のみ出力する(チェック済みをデフォルトに指定)
-        self.addParameter(
-            QgsProcessingParameterBoolean(
-                self.CHECK_FLAG, self.tr("比較対象レイヤと交差する箇所のみ出力"), defaultValue=1, optional=False
-            )
-        )
 
         # OUTPUT(グリッドレイヤ)
         self.addParameter(QgsProcessingParameterFeatureSink(self.OUTPUT, self.tr("出力レイヤ"), optional=False))
@@ -209,9 +204,8 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         # 入力された内容の読み込み
         source_crs = self.parameterAsCrs(parameters, self.INPUT, context)  # type: QgsCoordinateReferenceSystem
         source_kind = self.parameterAsEnum(parameters, self.KIND, context)  # type: int
-        source_area = self.parameterAsExtent(parameters, self.INTERSECT, context, crs=source_crs)  # type: QgsRectangle
+        source_area = self.parameterAsExtent(parameters, self.INTERSECT, context)  # type: QgsRectangle
         source_vector = self.parameterAsVectorLayer(parameters, self.INTERSECT, context)  # type: QgsVectorLayer
-        is_intersect_check = self.parameterAsBool(parameters, self.CHECK_FLAG, context)  # type: bool
 
         # 入力されたCRSがJGD2011,JGD2000,Tokyo座標系の1~19系のいずれかであるかの判断
         source_code, source_epsg, *_ = source_crs.authid().split(":")
@@ -224,26 +218,29 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         # 選択した処理内容を配列の添字から辞書キーに変換
         source_kind = list(self._BASIC_PROPERTY.keys())[source_kind]  # type: int
 
-        # 「選択した地物」にチェックが入っている場合の範囲
-        # TODO:QgsProcessingFeatureSourceDefinitionのうまい処理が全くわからん。もっと良い処理方法を思いついたら改修予定
-        if hasattr(parameters[self.INTERSECT], "selectedFeaturesOnly") and (
-            parameters[self.INTERSECT].selectedFeaturesOnly
-        ):
-            # 『レイヤの再投影』
-            # 詳しい内容は下記コマンドで確認可能
-            # processing.algorithmHelp("native:reprojectlayer")
-            source_vector = processing.run(
-                "native:reprojectlayer",
-                {"INPUT": parameters[self.INTERSECT], "TARGET_CRS": source_crs, "OUTPUT": "memory:"},
-                context=context,
-                feedback=feedback,
-            )["OUTPUT"]
+        # 「選択した地物」にチェックが入っている場合限定の処理
+        # if hasattr(parameters[self.INTERSECT], "selectedFeaturesOnly") and (parameters[self.INTERSECT].selectedFeaturesOnly):
 
-            if source_vector is None:
-                raise QgsProcessingException("Failed to reproject layer")
+        # 『レイヤの再投影』
+        # 詳しい内容は下記コマンドで確認可能
+        # processing.algorithmHelp("native:reprojectlayer")
+        feedback.pushInfo("範囲元となるベクタの再投影")
+        feedback.pushInfo("native:reprojectlayer")
+        source_vector = processing.run(
+            "native:reprojectlayer",
+            {"INPUT": parameters[self.INTERSECT], "TARGET_CRS": source_crs, "OUTPUT": "memory:"},
+            context=context,
+            feedback=feedback,
+        )["OUTPUT"]
 
-            # 選択した地物の範囲を指定
-            source_area = source_vector.extent()
+        if feedback.isCanceled():
+            return {}
+
+        if source_vector is None:
+            raise QgsProcessingException("Failed to reproject layer")
+
+        # 選択した地物の範囲を指定
+        source_area = source_vector.extent()
 
         # 国土基本図図郭の範囲外は無視
         if (
@@ -270,13 +267,12 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
 
         # 出力レイヤの定義
         # type: Tuple[QgsFeatureSink, str]
-        (sink, dest_id) = self.parameterAsSink(
-            parameters, self.OUTPUT, context, fields, QgsWkbTypes.Polygon, source_crs
-        )
+        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT, context, fields, QgsWkbTypes.Polygon, source_crs)
 
         # 『グリッドを作成』
         # 詳しい内容は下記コマンドで確認可能
         # processing.algorithmHelp("native:creategrid")
+        feedback.pushInfo("調整した範囲内でグリッドを作成")
         feedback.pushInfo("native:creategrid")
         grid_sink = processing.run(
             "native:creategrid",
@@ -293,46 +289,48 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
             context=context,
             feedback=feedback,
         )["OUTPUT"]
+
         if feedback.isCanceled():
             return {}
 
         if grid_sink is None:
             raise QgsProcessingException("Failed to generate the grid")
 
-        if is_intersect_check:
-            # 『空間インデックスを作成』
-            # 詳しい内容は下記コマンドで確認可能
-            # processing.algorithmHelp("native:createspatialindex")
-            feedback.pushInfo("native:createspatialindex")
-            processing.run(
-                "native:createspatialindex",
-                {"INPUT": grid_sink},
-                context=context,
-                feedback=feedback,
-            )
+        # 『空間インデックスを作成』
+        # 詳しい内容は下記コマンドで確認可能
+        # processing.algorithmHelp("native:createspatialindex")
+        feedback.pushInfo("空間インデックスを作成")
+        feedback.pushInfo("native:createspatialindex")
+        processing.run(
+            "native:createspatialindex",
+            {"INPUT": grid_sink},
+            context=context,
+            feedback=feedback,
+        )
 
-            if feedback.isCanceled():
-                return {}
+        if feedback.isCanceled():
+            return {}
 
-            # 『場所による抽出』
-            # 詳しい内容は下記コマンドで確認可能
-            # processing.algorithmHelp("native:extractbylocation")
-            feedback.pushInfo("native:extractbylocation")
-            grid_sink = processing.run(
-                "native:extractbylocation",
-                {"INPUT": grid_sink, "PREDICATE": 0, "INTERSECT": source_vector, "OUTPUT": "memory:"},
-                context=context,
-                feedback=feedback,
-            )["OUTPUT"]
+        # 『場所による抽出』
+        # 詳しい内容は下記コマンドで確認可能
+        # processing.algorithmHelp("native:extractbylocation")
+        feedback.pushInfo("場所による抽出")
+        feedback.pushInfo("native:extractbylocation")
+        grid_sink = processing.run(
+            "native:extractbylocation",
+            {"INPUT": grid_sink, "PREDICATE": 0, "INTERSECT": source_vector, "OUTPUT": "memory:"},
+            context=context,
+            feedback=feedback,
+        )["OUTPUT"]
 
-            if feedback.isCanceled():
-                return {}
+        if feedback.isCanceled():
+            return {}
 
-            if (grid_sink is None) or (grid_sink.featureCount() == 0):
-                raise QgsProcessingException("Failed to extract by location")
+        if (grid_sink is None) or (grid_sink.featureCount() == 0):
+            raise QgsProcessingException("Failed to extract by location")
 
         # 不要なフィールドの削除と新規フィールドの追加
-        feedback.pushInfo("Generate figure numbers")
+        feedback.pushInfo("国土基本図図郭名を算出して新規レイヤにコピー開始")
         grid_sink.startEditing()
         grid_sink.deleteAttributes(attrs=grid_sink.attributeList())
         for newf in self._NEW_FIELD:
@@ -344,9 +342,9 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         features = grid_sink.getFeatures()  # type: QgsFeatureIterator
 
         for current, feature in enumerate(features):
-            # キャンセルボタン押下時に中断
+            # キャンセルボタン押下時に終了
             if feedback.isCanceled():
-                break
+                {}
 
             # 図郭名称の設定
             feature_minx = int(feature.geometry().boundingBox().xMinimum())
@@ -384,20 +382,12 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         figure_name = str(kei).zfill(2)
         for level in self._BASIC_PROPERTY[select_level]["BASE"]:
             nowp = self._BASIC_PROPERTY[level]
-            convert_x = (
-                int((nowp["AREA_SIZE"][self.BASE_X] + figure_x) // nowp["FIGURE_SIZE"][self.BASE_X])
-                % nowp["DIVIDE"][self.BASE_X]
-            )
-            convert_y = (
-                int((nowp["AREA_SIZE"][self.BASE_Y] - figure_y) // nowp["FIGURE_SIZE"][self.BASE_Y])
-                % nowp["DIVIDE"][self.BASE_Y]
-            )
+            convert_x = int((nowp["AREA_SIZE"][self.BASE_X] + figure_x) // nowp["FIGURE_SIZE"][self.BASE_X]) % nowp["DIVIDE"][self.BASE_X]
+            convert_y = int((nowp["AREA_SIZE"][self.BASE_Y] - figure_y) // nowp["FIGURE_SIZE"][self.BASE_Y]) % nowp["DIVIDE"][self.BASE_Y]
             if nowp["LEVEL"] == 2500:
                 figure_name += chr(ord(nowp["FIGURE_NAME"][self.BASE_X]) + convert_x + (convert_y * 2))
             else:
-                figure_name += chr(ord(nowp["FIGURE_NAME"][self.BASE_Y]) + convert_y) + chr(
-                    ord(nowp["FIGURE_NAME"][self.BASE_X]) + convert_x
-                )
+                figure_name += chr(ord(nowp["FIGURE_NAME"][self.BASE_Y]) + convert_y) + chr(ord(nowp["FIGURE_NAME"][self.BASE_X]) + convert_x)
 
         return figure_name
 
@@ -435,7 +425,7 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return 'japanbasemap'
+        return "japanbasemap"
 
     def displayName(self):
         """プロセシングツールボックス上での名称"""
@@ -460,10 +450,10 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         contain lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return ''
+        return ""
 
     def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return QCoreApplication.translate("Processing", string)
 
     def createInstance(self):
         return JapanBasemapAlgorithm()

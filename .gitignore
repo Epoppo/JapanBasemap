@@ -2,5 +2,6 @@ images/
 japan_basemap/
 release/
 test/
+venv/
 *.zip
 
