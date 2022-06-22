@@ -66,8 +66,6 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
     # パラメータID
     INPUT = "INPUT"
     KIND = "KIND"
-    EXTENT = "EXTENT"
-    PREDICATE = "PREDICATE"
     INTERSECT = "INTERSECT"
     OUTPUT = "OUTPUT"
     OUTPUT_CRS = "OUTPUT_CRS"
