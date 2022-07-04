@@ -22,13 +22,13 @@
  ***************************************************************************/
 """
 
-__author__ = 'Epoppo'
-__date__ = '2022-06-18'
-__copyright__ = '(C) 2022 by Epoppo'
+__author__ = "Epoppo"
+__date__ = "2022-06-18"
+__copyright__ = "(C) 2022 by Epoppo"
 
 # This will get replaced with a git SHA1 when you do a git archive
 
-__revision__ = '$Format:%H$'
+__revision__ = "$Format:%H$"
 
 from qgis.core import QgsProcessingProvider
 
@@ -36,7 +36,6 @@ from .japan_basemap_algorithm import JapanBasemapAlgorithm
 
 
 class JapanBasemapProvider(QgsProcessingProvider):
-
     def __init__(self):
         """
         Default constructor.
@@ -64,7 +63,7 @@ class JapanBasemapProvider(QgsProcessingProvider):
         string should be a unique, short, character only string, eg "qgis" or
         "gdal". This string should not be localised.
         """
-        return 'basemap'
+        return "basemap"
 
     def name(self):
         """
@@ -73,7 +72,7 @@ class JapanBasemapProvider(QgsProcessingProvider):
 
         This string should be short (e.g. "Lastools") and localised.
         """
-        return self.tr('JapanBasemap')
+        return self.tr("JapanBasemap")
 
     def icon(self):
         """
