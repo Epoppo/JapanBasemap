@@ -2,7 +2,7 @@
 name=Japan Basemap
 qgisMinimumVersion=3.0
 description=対象範囲内に交差する国土基本図図郭の生成
-version=1.2.0
+version=1.2.2
 author=Epoppo
 email=poppo.circle@gmail.com
 about=指定されたベクタに交差(intersect)する範囲内で、指定した地図情報レベル(50000, 5000, 2500, 1000, 500, 250)の国土基本図図郭を生成します
