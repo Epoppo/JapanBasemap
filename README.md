@@ -2,7 +2,7 @@
 寝て起きたらまたお仕事めう<br>
 基本図のなんやかんやについていちいち調べて生成し直したり、必要以上に大きく読み込んでから切り取ったりするのが面倒なので、Qgisのプラグインとして開発<br>
 指定したベクタレイヤに交差する地図情報レベル50000, 5000, 2500, 1000, 500, 250の図郭コードを属性に持たせた国土基本図図郭の図郭ポリゴン、<br>
-もしくは地域メッシュ(1~6次メッシュ、2分の1、5分の1地域メッシュ、3次メッシュ1/10細分区画)を生成するだけのプラグイン<br>
+もしくは地域メッシュ(1~6次メッシュ、2倍、5倍地域メッシュ、及び3次メッシュ1/10細分区画)を生成するだけのプラグイン<br>
 <br>
 
 
@@ -11,35 +11,53 @@
 国土基本図図郭と地域メッシュの必要となる方の機能を起動
 <br>
     -- 基本図図郭が必要な場合 -- <br>
-    1. 「国土基本図図郭生成」をダブルクリック<br>
-    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/01_01_01_target_area.png" width=1200)><br>
+    1. 「国土基本図図郭生成」をダブルクリック
     <br>
-    2. 日本における平面直角座標系01系\~19系のいずれかの座標系、及び必要となる地図情報レベルを選択し、生成範囲となるベクタを設定して「実行」を押下 <br>
-    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/01_02_01_plugin_window_basemap.png" width=1200)><br>
+    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/01_01_01_target_area.png" width=1200>
+    <br>
+    <br>
+    2. 日本における平面直角座標系01系\~19系のいずれかの座標系、及び必要となる地図情報レベルを選択し、生成範囲となるベクタを設定して「実行」を押下
+    <br>
+    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/01_02_01_plugin_window_basemap.png" width=1200>
+    <br>
     <br>
     3. 設定したベクタに交差する図郭が出力されるので、スタイルを弄って完成<br>
     以下サンプル<br>
-    地図情報レベル1000の生成<br>
-    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/01_03_01_basemapsample_base1000.png" width=1200)><br>
-    地図情報レベル5000,1000,500の生成テスト<br>
-    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/01_03_02_basemapsample.png" width=1200)><br>
+    地図情報レベル1000の生成
+    <br>
+    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/01_03_01_basemapsample_base1000.png" width=1200>
+    <br>
+    地図情報レベル5000,1000,500の生成テスト
+    <br>
+    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/01_03_02_basemapsample.png" width=1200>
+    <br>
     <br><br>
     -- 地域メッシュが必要な場合 --<br>
     1. 「地域メッシュ生成」をダブルクリック<br>
-    (国土基本図図郭の際とは投影系が異なるため、引き伸ばされたように見えますが同じベクタを用いております。)<br>
-    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_01_01_target_area.png" width=1200)><br>
+    (国土基本図図郭の際とは投影系が異なるため、引き伸ばされたように見えますが同じベクタを用いております。)
     <br>
-    2. 世界測地系と日本測地系で必要な座標系、及び必要なメッシュ種別を選択し、生成範囲となるベクタを設定して「実行」を押下 <br>
-    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_02_01__plugin_window_regional.png" width=1200)><br>
+    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_01_01_target_area.png" width=1200>
+    <br>
+    <br>
+    2. 世界測地系と日本測地系で必要な座標系、及び必要なメッシュ種別を選択し、生成範囲となるベクタを設定して「実行」を押下
+    <br>
+    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_02_01__plugin_window_regional.png" width=1200>
+    <br>
     <br>
     3. 設定したベクタに交差するメッシュが出力されるので、スタイルを弄って完成<br>
     以下サンプル<br>
-    3次メッシュの生成<br>
-    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_03_01_meshsample_3rdmesh.png" width=1200)><br>
-    2次~6次メッシュの生成テスト<br>
-    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_03_02_meshsample_2nd_6thmesh.png" width=1200)><br>
-    100mメッシュの生成テスト<br>
-    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_03_03_100m_mesh.png" width=1200)><br>
+    3次メッシュの生成
+    <br>
+    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_03_01_meshsample_3rdmesh.png" width=1200>
+    <br>
+    2次~6次メッシュの生成テスト
+    <br>
+    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_03_02_meshsample_2nd_6thmesh.png" width=1200>
+    <br>
+    100mメッシュの生成テスト
+    <br>
+    <img src="https://raw.githubusercontent.com/Epoppo/JapanBasemap/images/images/v2_0_0/02_03_03_100m_mesh.png" width=1200>
+    <br>
     <br><br>
 
 ## 当プラグインが対応するQgisのバージョン
@@ -59,7 +77,7 @@ C:\Users\\(ユーザ名)\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plug
 
 1. 当リポジトリのReleaseで配布してるzip(もしくは下記)をDLしてローカルに保存
     - v2.0.0<br>
-      https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_0
+    <a href="https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_0" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_0</a>
 2. Qgisを開く
 3. メニューバーの「プラグイン(P)」から「プラグインの管理とインストール」を押下
 4. ポップしたウィンドウ左にある「ZIPからインストールする」を押下
@@ -77,7 +95,8 @@ C:\Users\\(ユーザ名)\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plug
 公共測量標準様式にある数値地形図データファイル仕様の項の内、第84条と85条に従ったもの。
 
 以下内容を適当に要約したもの
-| 地図情報レベル | 図郭サイズ<br>(x*y) | 名称<br>(例) | 内容 |
+
+| 地図情報レベル | 図郭サイズ(x*y) | 名称(例) | 内容 |
 |:---|:---|:---|:---|
 |50000 |40km*30km |09JD| 平面直角座標の原点を中心として、南北600kmを20等分,東西320kmを8等分。10の位を南北でA\~T、1の位をを東西でA\~Hで表している。| 
 |5000 |4km*3km |09JD55 | 地図情報レベル50000を10\*10に分割。10の位を南北で0\~9、1の位をを東西で0\~9で表している。|
@@ -141,6 +160,7 @@ JIS規格で定められていないものについては、個人の認識で�
 以下サンプル<br>
 
 生成可能なメッシュ種別
+
 |No. |標準地域メッシュ内の種別|JIS規格上の名称|よく使用される名称|
 |:---|:---|:---|:---|
 |0|-|第1次地域区画|1次メッシュ
@@ -152,9 +172,11 @@ JIS規格で定められていないものについては、個人の認識で�
 |6|分割地域メッシュ|4分の1地域メッシュ|5次メッシュ
 |7|分割地域メッシュ|8分の1地域メッシュ|6次メッシュ
 |8|-|-|3次メッシュ1/10細分区画<br>(100mメッシュ)
+
 <br>
 
 各種別と詳細
+
 |No.|よく使用される名称|緯度の間隔|経度の間隔|一辺の長さ|名称桁数|名称<br>(例)|
 |:---|:---|:---|:---|:---|:---|:---|
 |0|1次メッシュ|40 [分]|1 [度]|約 80 [km]|4桁|5339
@@ -166,9 +188,11 @@ JIS規格で定められていないものについては、個人の認識で�
 |6|5次メッシュ|7.5 [秒]|11.25 [秒]|約 250 [m]|10桁|533938742
 |7|6次メッシュ|3.75 [秒]|5.625 [秒]|約 125 [m]|11桁|5339387423
 |8|100mメッシュ|3 [秒]|4.5 [秒]|約 100 [m]|10桁|5339038757
+
 <br>
 
 各種別と名称の作成方法
+
 |No.|よく使用される名称|名称桁数|名称<br>(例)| 名称の作成方法 |
 |:---|:---|:---|:---|:---|
 |0|1次メッシュ|4桁|5339|緯度*1.5を上2桁、経度%100を下2桁とする。
@@ -180,6 +204,7 @@ JIS規格で定められていないものについては、個人の認識で�
 |6|5次メッシュ|10桁|533938742|4次メッシュを縦横4等分し、南西を1、南東を2、北西を3、北東を4とする数値を10桁目とする。
 |7|6次メッシュ|11桁|5339387423|5次メッシュを縦横4等分し、南西を1、南東を2、北西を3、北東を4とする数値を11桁目とする。
 |8|100mメッシュ|10桁|5339038757|3次メッシュを縦横10等分し、各区画に南と西から順に0~9の番号を振って縦の番号を9桁目、横の番号を10桁目とする。
+
 <br>
 
 + 統合地域メッシュの内JIS規格で言及されている「10倍地域メッシュ」は2次メッシュと同じものであるため割愛
@@ -199,27 +224,27 @@ JIS規格で定められていないものについては、個人の認識で�
 ## 全体
 ### 参考資料
 公共測量標準様式(令和2年度版)<br>
-https://psgsv2.gsi.go.jp/koukyou/jyunsoku/pdf/r2/r2_junsoku_furoku7_0609.pdf
+<a href="https://psgsv2.gsi.go.jp/koukyou/jyunsoku/pdf/r2/r2_junsoku_furoku7_0609.pdf" class="autolink" rel="nofollow noopener" target="_blank">https://psgsv2.gsi.go.jp/koukyou/jyunsoku/pdf/r2/r2_junsoku_furoku7_0609.pdf</a>
 <br>
 
 平面直角座標系（平成十四年国土交通省告示第九号） | 国土地理院<br>
-https://www.gsi.go.jp/LAW/heimencho.html
+<a href="https://www.gsi.go.jp/LAW/heimencho.html" class="autolink" rel="nofollow noopener" target="_blank">https://www.gsi.go.jp/LAW/heimencho.html</a>
 <br>
 
 総務省 統計局ホームページ/地域メッシュ統計の概要<br>
-https://www.stat.go.jp/data/mesh/gaiyou.html
+<a href="https://www.stat.go.jp/data/mesh/gaiyou.html" class="autolink" rel="nofollow noopener" target="_blank">https://www.stat.go.jp/data/mesh/gaiyou.html</a>
 <br>
 
 総務省 統計局ホームページ/地域メッシュ統計の概要/地域メッシュ統計の特質・沿革.pdf<br>
-https://www.stat.go.jp/data/mesh/pdf/gaiyo1.pdf
+<a href="https://www.stat.go.jp/data/mesh/pdf/gaiyo1.pdf" class="autolink" rel="nofollow noopener" target="_blank">https://www.stat.go.jp/data/mesh/pdf/gaiyo1.pdf</a>
 <br>
 
 JISC 日本産業標準調査会<br>
-https://www.jisc.go.jp/index.html
+<a href="https://www.jisc.go.jp/index.html" class="autolink" rel="nofollow noopener" target="_blank">https://www.jisc.go.jp/index.html</a>
 <br>
 
 epsg.io<br>
-https://epsg.io/
+<a href="https://epsg.io/" class="autolink" rel="nofollow noopener" target="_blank">https://epsg.io/</a>
 <br>
 <br>
 <br>
