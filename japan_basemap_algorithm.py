@@ -68,7 +68,6 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
     KIND = "KIND"
     INTERSECT = "INTERSECT"
     OUTPUT = "OUTPUT"
-    OUTPUT_CRS = "OUTPUT_CRS"
 
     # 予備
     ERROR_NUMBER = -1
@@ -203,7 +202,6 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         source_crs = self.parameterAsCrs(parameters, self.INPUT, context)  # type: QgsCoordinateReferenceSystem
         source_kind = self.parameterAsEnum(parameters, self.KIND, context)  # type: int
         source_area = self.parameterAsExtent(parameters, self.INTERSECT, context)  # type: QgsRectangle
-        source_vector = self.parameterAsVectorLayer(parameters, self.INTERSECT, context)  # type: QgsVectorLayer
 
         # 入力されたCRSがJGD2011,JGD2000,Tokyo座標系の1~19系のいずれかであるかの判断
         source_code, source_epsg, *_ = source_crs.authid().split(":")
@@ -276,7 +274,7 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
             "native:creategrid",
             {
                 "TYPE": 2,
-                "EXTENT": "{},{},{},{}".format(min_x, max_x, min_y, max_y),
+                "EXTENT": f"{min_x}, {max_x}, {min_y}, {max_y}",
                 "HSPACING": self._BASIC_PROPERTY[source_kind]["FIGURE_SIZE"][self.BASE_X],
                 "VSPACING": self._BASIC_PROPERTY[source_kind]["FIGURE_SIZE"][self.BASE_Y],
                 "HOVERLAY": 0,

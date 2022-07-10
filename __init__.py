@@ -22,9 +22,9 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
-__author__ = 'Epoppo'
-__date__ = '2022-06-18'
-__copyright__ = '(C) 2022 by Epoppo'
+__author__ = "Epoppo"
+__date__ = "2022-06-18"
+__copyright__ = "(C) 2022 by Epoppo"
 
 
 # noinspection PyPep8Naming
@@ -36,4 +36,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     """
     #
     from .japan_basemap import JapanBasemapPlugin
+
     return JapanBasemapPlugin()
