@@ -33,6 +33,7 @@ __revision__ = "$Format:%H$"
 from qgis.core import QgsProcessingProvider
 
 from .japan_basemap_algorithm import JapanBasemapAlgorithm
+from .japan_regional_mesh_algorithm import JapanRegionalMeshAlgorithm
 
 
 class JapanBasemapProvider(QgsProcessingProvider):
@@ -54,6 +55,7 @@ class JapanBasemapProvider(QgsProcessingProvider):
         Loads all algorithms belonging to this provider.
         """
         self.addAlgorithm(JapanBasemapAlgorithm())
+        self.addAlgorithm(JapanRegionalMeshAlgorithm())
         # add additional algorithms here
         # self.addAlgorithm(MyOtherAlgorithm())
 
