@@ -30,8 +30,8 @@ __copyright__ = "(C) 2022 by Epoppo"
 
 __revision__ = "$Format:%H$"
 
-from enum import Enum, auto
-from typing import Any, Dict, NamedTuple, Tuple, Union
+from enum import Enum, unique
+from typing import Any, Dict, NamedTuple, Optional, Tuple, Union
 
 from qgis import processing
 from qgis.core import (
@@ -57,25 +57,28 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
 
 
+@unique
 class BasePattern(Enum):
     # 各地図情報レベルの定数
-    Base50000 = 50000
-    Base5000 = 5000
-    Base2500 = 2500
-    Base1000 = 1000
-    Base500 = 500
-    Base250 = 250
+    Base50000 = 0
+    Base5000 = 1
+    Base2500 = 2
+    Base1000 = 3
+    Base500 = 4
+    Base250 = 5
 
 
 class BaseProperty(NamedTuple):
+    # DESCRIPTION: 処理種別として表示される内容
     # AREA_SIZE: 原点(0,0)と各頂点で四角形を作った際のサイズ。計算用。(m)
     # FIGURE_SIZE: 1図郭のサイズ(m)
-    # BASE: 名称の継承元("LEVEL") => メッシュ作成と同様、もう少しスマートにするべきな気がする
+    # PARENT: 名称の継承元
     # FIGURE_NAME: 図郭の左上にあたる箇所の名称。[x,y]
     # DIVIDE: 各エリアにおける図郭の最大分割数。
+    DESCRIPTION: str
     AREA_SIZE: Tuple[Union[int, float], Union[int, float]]
     FIGURE_SIZE: Tuple[Union[int, float], Union[int, float]]
-    BASE: Tuple[BasePattern, ...]
+    PARENT: Optional[BasePattern]
     FIGURE_NAME: Tuple[Union[int, str], ...]
     DIVIDE: Tuple[int, int]
 
@@ -110,44 +113,50 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
     # 各地図情報レベルにおける定数部分の定義。
     _BASIC_PROPERTY = {
         BasePattern.Base50000: BaseProperty(
+            DESCRIPTION="地図情報レベル 50000",
             AREA_SIZE=(160000, 300000),
             FIGURE_SIZE=(40000, 30000),
-            BASE=(BasePattern.Base50000),
+            PARENT=None,
             FIGURE_NAME=("A", "A"),
             DIVIDE=(8, 20),
         ),
         BasePattern.Base5000: BaseProperty(
+            DESCRIPTION="地図情報レベル 5000",
             AREA_SIZE=(40000, 30000),
             FIGURE_SIZE=(4000, 3000),
-            BASE=(BasePattern.Base50000, BasePattern.Base5000),
+            PARENT=BasePattern.Base50000,
             FIGURE_NAME=("0", "0"),
             DIVIDE=(10, 10),
         ),
         BasePattern.Base2500: BaseProperty(
+            DESCRIPTION="地図情報レベル 2500",
             AREA_SIZE=(4000, 3000),
             FIGURE_SIZE=(2000, 1500),
-            BASE=(BasePattern.Base50000, BasePattern.Base5000, BasePattern.Base2500),
+            PARENT=BasePattern.Base5000,
             FIGURE_NAME=("1"),
             DIVIDE=(2, 2),
         ),
         BasePattern.Base1000: BaseProperty(
+            DESCRIPTION="地図情報レベル 1000",
             AREA_SIZE=(4000, 3000),
             FIGURE_SIZE=(800, 600),
-            BASE=(BasePattern.Base50000, BasePattern.Base5000, BasePattern.Base1000),
+            PARENT=BasePattern.Base5000,
             FIGURE_NAME=("A", "0"),
             DIVIDE=(5, 5),
         ),
         BasePattern.Base500: BaseProperty(
+            DESCRIPTION="地図情報レベル 500",
             AREA_SIZE=(4000, 3000),
             FIGURE_SIZE=(400, 300),
-            BASE=(BasePattern.Base50000, BasePattern.Base5000, BasePattern.Base500),
+            PARENT=BasePattern.Base5000,
             FIGURE_NAME=("0", "0"),
             DIVIDE=(10, 10),
         ),
         BasePattern.Base250: BaseProperty(
+            DESCRIPTION="地図情報レベル 250",
             AREA_SIZE=(4000, 3000),
             FIGURE_SIZE=(200, 150),
-            BASE=(BasePattern.Base50000, BasePattern.Base5000, BasePattern.Base250),
+            PARENT=BasePattern.Base5000,
             FIGURE_NAME=("A", "A"),
             DIVIDE=(20, 20),
         ),
@@ -165,7 +174,7 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         super().__init__()
 
         # 処理内容の選択肢
-        self.MESH_TYPE = [self.tr(f"地図情報レベル {lev.value}") for lev in self._BASIC_PROPERTY.keys()]
+        self.MESH_TYPE = [self.tr(f"{lev.DESCRIPTION}") for lev in self._BASIC_PROPERTY.values()]
 
     def initAlgorithm(self, config):
         """パラメータの定義を行う
@@ -222,7 +231,7 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         source_kei = self.derivedEPSGToKei(int(source_epsg))  # type: int
 
         # 選択した処理内容を配列の添字から辞書キーに変換
-        source_kind = list(self._BASIC_PROPERTY.keys())[source_kind]  # type: int
+        source_kind = BasePattern(source_kind)  # type: BasePattern
 
         # 「選択した地物」にチェックが入っている場合限定の処理
         # if hasattr(parameters[self.INTERSECT], "selectedFeaturesOnly") and (parameters[self.INTERSECT].selectedFeaturesOnly):
@@ -369,12 +378,31 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         # 出力
         return {self.OUTPUT: dest_id}
 
-    def derivedToFigureName(self, kei: int, select_level: int, figure_x: int, figure_y: int) -> str:
+    def retrieveMeshAncestors(self, base_pattern: BasePattern) -> Tuple[BasePattern, ...]:
+        """BASIC_PROPERTYのparent要素を取ってきたものを昇順にして返す
+
+        Args:
+            base_pattern (BasePattern): 地域メッシュ種別
+
+        Returns:
+            ancestors_list (Tuple[BasePattern, ...]): _BASE_PROPERTY上のparentを辿り、最も祖となるBasePatternから入力BasePatternまでを順に入れたもの
+        """
+        ancestors_list = []
+        now_pattern = base_pattern
+        while True:
+            ancestors_list.append(now_pattern)
+            now_pattern = self._BASIC_PROPERTY[now_pattern].PARENT
+            if now_pattern is None:
+                ancestors_list.reverse()
+                break
+        return tuple(ancestors_list)
+
+    def derivedToFigureName(self, kei: int, select_level: BasePattern, figure_x: int, figure_y: int) -> str:
         """系と地図情報レベルと左上座標の点を投げると、対象の点が属する図郭名称を導出して返す関数。
         地図情報レベル2500の命名だけが例外で気持ち悪い。なんで1から始まるんだ
         Args:
             kei (int)  : 系
-            select_level (int): 地図情報レベル
+            select_level (BasePattern): 地図情報レベル
             figure_x (int): 図郭の左上座標(x)
             figure_y (int): 図郭の左上座標(y)
 
@@ -386,7 +414,7 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
             figure_name = convertToFigureName(source_kei, source_kind, AREA["left"], AREA["top"])
         """
         figure_name = str(kei).zfill(2)
-        base_level = self._BASIC_PROPERTY[select_level].BASE
+        base_level = self.retrieveMeshAncestors(select_level)
         if not hasattr(base_level, "__iter__"):
             base_level = [base_level]
         for level in base_level:
