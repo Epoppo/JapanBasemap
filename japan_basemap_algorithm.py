@@ -30,7 +30,8 @@ __copyright__ = "(C) 2022 by Epoppo"
 
 __revision__ = "$Format:%H$"
 
-from typing import Any, Dict, Tuple, Union
+from enum import Enum, auto
+from typing import Any, Dict, NamedTuple, Tuple, Union
 
 from qgis import processing
 from qgis.core import (
@@ -54,6 +55,29 @@ from qgis.core import (
     QgsWkbTypes,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
+
+
+class BasePattern(Enum):
+    # 各地図情報レベルの定数
+    Base50000 = 50000
+    Base5000 = 5000
+    Base2500 = 2500
+    Base1000 = 1000
+    Base500 = 500
+    Base250 = 250
+
+
+class BaseProperty(NamedTuple):
+    # AREA_SIZE: 原点(0,0)と各頂点で四角形を作った際のサイズ。計算用。(m)
+    # FIGURE_SIZE: 1図郭のサイズ(m)
+    # BASE: 名称の継承元("LEVEL") => メッシュ作成と同様、もう少しスマートにするべきな気がする
+    # FIGURE_NAME: 図郭の左上にあたる箇所の名称。[x,y]
+    # DIVIDE: 各エリアにおける図郭の最大分割数。
+    AREA_SIZE: Tuple[Union[int, float], Union[int, float]]
+    FIGURE_SIZE: Tuple[Union[int, float], Union[int, float]]
+    BASE: Tuple[BasePattern, ...]
+    FIGURE_NAME: Tuple[Union[int, str], ...]
+    DIVIDE: Tuple[int, int]
 
 
 class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
@@ -84,63 +108,49 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
     }
 
     # 各地図情報レベルにおける定数部分の定義。
-    # 当処理内での計算に用いる為の定義なので、他から呼び出すように作ってないし、当辞書配列の使用方法はエレガントさに欠ける。暇があれば設計を見直すこと。
-    # また、後述する処理で順序付きである事を前提とした動かし方をしているので、Python3.6以降を想定。
-    # LEVEL: 地図情報レベル
-    # AREA_SIZE: 原点(0,0)と各頂点で四角形を作った際のサイズ。計算用。(m)
-    # FIGURE_SIZE: 1図郭のサイズ(m)
-    # BASE: 名称の継承元("LEVEL")
-    # FIGURE_NAME: 図郭の左上にあたる箇所の名称。[x,y]
-    # DIVIDE: 各エリアにおける図郭の最大分割数。
     _BASIC_PROPERTY = {
-        50000: {
-            "LEVEL": 50000,
-            "AREA_SIZE": [160000, 300000],
-            "FIGURE_SIZE": [40000, 30000],
-            "BASE": [50000],
-            "FIGURE_NAME": ["A", "A"],
-            "DIVIDE": [8, 20],
-        },
-        5000: {
-            "LEVEL": 5000,
-            "AREA_SIZE": [40000, 30000],
-            "FIGURE_SIZE": [4000, 3000],
-            "BASE": [50000, 5000],
-            "FIGURE_NAME": ["0", "0"],
-            "DIVIDE": [10, 10],
-        },
-        2500: {
-            "LEVEL": 2500,
-            "AREA_SIZE": [4000, 3000],
-            "FIGURE_SIZE": [2000, 1500],
-            "BASE": [50000, 5000, 2500],
-            "FIGURE_NAME": ["1"],
-            "DIVIDE": [2, 2],
-        },
-        1000: {
-            "LEVEL": 1000,
-            "AREA_SIZE": [4000, 3000],
-            "FIGURE_SIZE": [800, 600],
-            "BASE": [50000, 5000, 1000],
-            "FIGURE_NAME": ["A", "0"],
-            "DIVIDE": [5, 5],
-        },
-        500: {
-            "LEVEL": 500,
-            "AREA_SIZE": [4000, 3000],
-            "FIGURE_SIZE": [400, 300],
-            "BASE": [50000, 5000, 500],
-            "FIGURE_NAME": ["0", "0"],
-            "DIVIDE": [10, 10],
-        },
-        250: {
-            "LEVEL": 250,
-            "AREA_SIZE": [4000, 3000],
-            "FIGURE_SIZE": [200, 150],
-            "BASE": [50000, 5000, 250],
-            "FIGURE_NAME": ["A", "A"],
-            "DIVIDE": [20, 20],
-        },
+        BasePattern.Base50000: BaseProperty(
+            AREA_SIZE=(160000, 300000),
+            FIGURE_SIZE=(40000, 30000),
+            BASE=(BasePattern.Base50000),
+            FIGURE_NAME=("A", "A"),
+            DIVIDE=(8, 20),
+        ),
+        BasePattern.Base5000: BaseProperty(
+            AREA_SIZE=(40000, 30000),
+            FIGURE_SIZE=(4000, 3000),
+            BASE=(BasePattern.Base50000, BasePattern.Base5000),
+            FIGURE_NAME=("0", "0"),
+            DIVIDE=(10, 10),
+        ),
+        BasePattern.Base2500: BaseProperty(
+            AREA_SIZE=(4000, 3000),
+            FIGURE_SIZE=(2000, 1500),
+            BASE=(BasePattern.Base50000, BasePattern.Base5000, BasePattern.Base2500),
+            FIGURE_NAME=("1"),
+            DIVIDE=(2, 2),
+        ),
+        BasePattern.Base1000: BaseProperty(
+            AREA_SIZE=(4000, 3000),
+            FIGURE_SIZE=(800, 600),
+            BASE=(BasePattern.Base50000, BasePattern.Base5000, BasePattern.Base1000),
+            FIGURE_NAME=("A", "0"),
+            DIVIDE=(5, 5),
+        ),
+        BasePattern.Base500: BaseProperty(
+            AREA_SIZE=(4000, 3000),
+            FIGURE_SIZE=(400, 300),
+            BASE=(BasePattern.Base50000, BasePattern.Base5000, BasePattern.Base500),
+            FIGURE_NAME=("0", "0"),
+            DIVIDE=(10, 10),
+        ),
+        BasePattern.Base250: BaseProperty(
+            AREA_SIZE=(4000, 3000),
+            FIGURE_SIZE=(200, 150),
+            BASE=(BasePattern.Base50000, BasePattern.Base5000, BasePattern.Base250),
+            FIGURE_NAME=("A", "A"),
+            DIVIDE=(20, 20),
+        ),
     }
 
     # 新規フィールド
@@ -155,7 +165,7 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
         super().__init__()
 
         # 処理内容の選択肢
-        self.MESH_TYPE = [self.tr(f"地図情報レベル {lev}") for lev in self._BASIC_PROPERTY.keys()]
+        self.MESH_TYPE = [self.tr(f"地図情報レベル {lev.value}") for lev in self._BASIC_PROPERTY.keys()]
 
     def initAlgorithm(self, config):
         """パラメータの定義を行う
@@ -240,16 +250,16 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
 
         # 国土基本図図郭の範囲外は無視
         if (
-            (source_area.xMinimum() < (-1) * self._BASIC_PROPERTY[50000]["AREA_SIZE"][self.BASE_X])
-            or (source_area.xMaximum() > self._BASIC_PROPERTY[50000]["AREA_SIZE"][self.BASE_X])
-            or (source_area.yMinimum() < (-1) * self._BASIC_PROPERTY[50000]["AREA_SIZE"][self.BASE_Y])
-            or (source_area.yMaximum() > self._BASIC_PROPERTY[50000]["AREA_SIZE"][self.BASE_Y])
+            (source_area.xMinimum() < (-1) * self._BASIC_PROPERTY[BasePattern.Base50000].AREA_SIZE[self.BASE_X])
+            or (source_area.xMaximum() > self._BASIC_PROPERTY[BasePattern.Base50000].AREA_SIZE[self.BASE_X])
+            or (source_area.yMinimum() < (-1) * self._BASIC_PROPERTY[BasePattern.Base50000].AREA_SIZE[self.BASE_Y])
+            or (source_area.yMaximum() > self._BASIC_PROPERTY[BasePattern.Base50000].AREA_SIZE[self.BASE_Y])
         ):
             raise QgsProcessingException("INPUT_EXTENT is not coverd by Base map outline")
 
         # 処理範囲を図郭サイズのn倍の範囲になるよう調整
-        figure_x = self._BASIC_PROPERTY[source_kind]["FIGURE_SIZE"][self.BASE_X]
-        figure_y = self._BASIC_PROPERTY[source_kind]["FIGURE_SIZE"][self.BASE_Y]
+        figure_x = self._BASIC_PROPERTY[source_kind].FIGURE_SIZE[self.BASE_X]
+        figure_y = self._BASIC_PROPERTY[source_kind].FIGURE_SIZE[self.BASE_Y]
 
         max_x = (int(source_area.xMaximum() // figure_x) + 1) * figure_x
         max_y = (int(source_area.yMaximum() // figure_y) + 1) * figure_y
@@ -275,8 +285,8 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
             {
                 "TYPE": 2,
                 "EXTENT": f"{min_x}, {max_x}, {min_y}, {max_y}",
-                "HSPACING": self._BASIC_PROPERTY[source_kind]["FIGURE_SIZE"][self.BASE_X],
-                "VSPACING": self._BASIC_PROPERTY[source_kind]["FIGURE_SIZE"][self.BASE_Y],
+                "HSPACING": self._BASIC_PROPERTY[source_kind].FIGURE_SIZE[self.BASE_X],
+                "VSPACING": self._BASIC_PROPERTY[source_kind].FIGURE_SIZE[self.BASE_Y],
                 "HOVERLAY": 0,
                 "VOVERLAY": 0,
                 "CRS": source_crs,
@@ -376,14 +386,17 @@ class JapanBasemapAlgorithm(QgsProcessingAlgorithm):
             figure_name = convertToFigureName(source_kei, source_kind, AREA["left"], AREA["top"])
         """
         figure_name = str(kei).zfill(2)
-        for level in self._BASIC_PROPERTY[select_level]["BASE"]:
+        base_level = self._BASIC_PROPERTY[select_level].BASE
+        if not hasattr(base_level, "__iter__"):
+            base_level = [base_level]
+        for level in base_level:
             nowp = self._BASIC_PROPERTY[level]
-            convert_x = int((nowp["AREA_SIZE"][self.BASE_X] + figure_x) // nowp["FIGURE_SIZE"][self.BASE_X]) % nowp["DIVIDE"][self.BASE_X]
-            convert_y = int((nowp["AREA_SIZE"][self.BASE_Y] - figure_y) // nowp["FIGURE_SIZE"][self.BASE_Y]) % nowp["DIVIDE"][self.BASE_Y]
-            if nowp["LEVEL"] == 2500:
-                figure_name += chr(ord(nowp["FIGURE_NAME"][self.BASE_X]) + convert_x + (convert_y * 2))
+            convert_x = int((nowp.AREA_SIZE[self.BASE_X] + figure_x) // nowp.FIGURE_SIZE[self.BASE_X]) % nowp.DIVIDE[self.BASE_X]
+            convert_y = int((nowp.AREA_SIZE[self.BASE_Y] - figure_y) // nowp.FIGURE_SIZE[self.BASE_Y]) % nowp.DIVIDE[self.BASE_Y]
+            if level == BasePattern.Base2500:
+                figure_name += chr(ord(nowp.FIGURE_NAME[self.BASE_X]) + convert_x + (convert_y * 2))
             else:
-                figure_name += chr(ord(nowp["FIGURE_NAME"][self.BASE_Y]) + convert_y) + chr(ord(nowp["FIGURE_NAME"][self.BASE_X]) + convert_x)
+                figure_name += chr(ord(nowp.FIGURE_NAME[self.BASE_Y]) + convert_y) + chr(ord(nowp.FIGURE_NAME[self.BASE_X]) + convert_x)
 
         return figure_name
 
