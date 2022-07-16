@@ -3,8 +3,8 @@ title: Qgis3用 国土基本図図郭, 地域メッシュ生成プラグイン
 description: 日本国内における国土基本図図郭、地域メッシュの各種を生成するQgis3用プラグイン
 show_downloads: true
 github:
-  zip_url: https://github.com/Epoppo/JapanBasemap/releases/download/v2_0_1/japan_basemap_v2_0_1.zip
-  another_url: v2.0.1
+  zip_url: https://github.com/Epoppo/JapanBasemap/releases/download/v2_0_1/japan_basemap_v2_0_2.zip
+  another_url: v2.0.2
 plugins:
   - jekyll-sitemap
   - jekyll-seo-tag

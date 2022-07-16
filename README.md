@@ -92,8 +92,8 @@ Qgis3.0以降が搭載する「Python 3.6」で動作可能であるように書
 - zipを利用したインストール 
 
     1. 当リポジトリのRelease(下記)で配布してるzipをDLしてローカルに保存
-        - v2.0.1<br>
-        <a href="https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_1" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_1</a>
+        - v2.0.2<br>
+        <a href="https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_2" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_2</a>
     2. Qgisを開く
     3. メニューバーの「プラグイン(P)」から「プラグインの管理とインストール」を押下
     4. ポップしたウィンドウ左にある「ZIPからインストールする」を押下
