@@ -1,7 +1,7 @@
 # Qgis3用 国土基本図図郭, 地域メッシュ生成プラグイン
 寝て起きたらまたお仕事めう<br>
 基本図のなんやかんやについていちいち調べて生成し直したり、必要以上に大きく読み込んでから切り取ったりするのが面倒なのでQgisのプラグインとして開発<br>
-指定したベクタレイヤに交差する国土基本図図郭の図郭ポリゴン、もしくは地域メッシュを生成するプラグイン<br>
+指定したベクタレイヤに交差する国土基本図図郭、もしくは地域メッシュに対応するポリゴンを生成するプラグイン<br>
 <br>
 
 
@@ -88,25 +88,26 @@ Qgis3.0以降が搭載する「Python 3.6」で動作可能であるように書
 <br>
 
 ## インストール方法
--- 分かってる人向け --<br>
-通常通りインストールを行っている場合、QGIS3がプラグインを読み込むディレクトリにフォルダを作成し、<br>
-```
-C:\Users\\(ユーザ名)\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\japan_basemap
-```
-に対して当リポジトリの内容を突っ込めば動きます。
 
-<br>
--- zipを利用したインストール --<br>
+- zipを利用したインストール 
 
-1. 当リポジトリのReleaseで配布してるzip(もしくは下記)をDLしてローカルに保存
-    - v2.0.1<br>
-    <a href="https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_1" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_1</a>
-2. Qgisを開く
-3. メニューバーの「プラグイン(P)」から「プラグインの管理とインストール」を押下
-4. ポップしたウィンドウ左にある「ZIPからインストールする」を押下
-5. 1.で保存したzipを指定
-6. ウィンドウの「インストール済み」を押下し、「Japan Basemap」が導入され、チェックが入っていることを確認
-7. プロセシングツールボックスに「JapanBasemap」の行と、その配下に「国土基本図図郭生成」及び「地域メッシュ生成」のプロセスツールが追加されていることを確認
+    1. 当リポジトリのRelease(下記)で配布してるzipをDLしてローカルに保存
+        - v2.0.1<br>
+        <a href="https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_1" class="autolink" rel="nofollow noopener" target="_blank">https://github.com/Epoppo/JapanBasemap/releases/tag/v2_0_1</a>
+    2. Qgisを開く
+    3. メニューバーの「プラグイン(P)」から「プラグインの管理とインストール」を押下
+    4. ポップしたウィンドウ左にある「ZIPからインストールする」を押下
+    5. 1.で保存したzipを指定
+    6. ウィンドウの「インストール済み」を押下し、「Japan Basemap」が導入され、チェックが入っていることを確認
+    7. プロセシングツールボックスに「JapanBasemap」の行と、その配下に「国土基本図図郭生成」及び「地域メッシュ生成」のプロセスツールが追加されていることを確認
+
+- 分かってる人向け
+
+    通常通りインストールを行っている場合、QGIS3がプラグインを読み込むディレクトリに適当なフォルダを作成し、<br>
+    ```
+    C:\Users\\(ユーザ名)\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\(作成したディレクトリ)\
+    ```
+    に対して当リポジトリの内容を突っ込めば動きます。
 
 <br>
 <br>
@@ -115,7 +116,7 @@ C:\Users\\(ユーザ名)\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plug
 # 補足資料
 ## 国土基本図図郭について
 ### 地図情報レベル毎における図郭割り
-公共測量標準様式にある数値地形図データファイル仕様の項の内、第84条と85条に従ったもの。
+令和2年度における「公共測量標準様式」に記載された数値地形図データファイル仕様の項の内、第84条及び85条に従ったもの。
 
 以下内容を適当に要約したもの
 
